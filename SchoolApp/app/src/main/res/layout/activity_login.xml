@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:weightSum="1">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        app:srcCompat="@drawable/logo"
+        android:id="@+id/imageViewLogo"
+        android:background="@drawable/logo"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/colorGray">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:background="@color/colorWhite"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+
+            <ImageView
+                android:layout_width="38dp"
+                android:layout_height="34dp"
+                android:layout_marginLeft="5dp"
+                android:background="@color/colorWhite"
+                app:srcCompat="@drawable/userpic"
+                android:layout_gravity="center"
+                android:src="@drawable/userpic"/>
+
+            <EditText
+                android:hint="用户名"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:background="@color/colorWhite"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:background="@color/colorWhite"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
+            <ImageView
+                android:layout_width="38dp"
+                android:layout_height="34dp"
+                android:layout_marginLeft="5dp"
+                android:background="@color/colorWhite"
+                app:srcCompat="@drawable/passwordlockpic"
+                android:layout_gravity="center"
+                android:src="@drawable/passwordlockpic"/>
+
+            <EditText
+                android:hint="密码"
+                android:textSize="16sp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="20dp"
+                android:background="@color/colorWhite"
+                android:layout_gravity="center"
+                android:id="@+id/editText"/>
+
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="55dp"
+            android:orientation="vertical"
+            >
+
+            <Button
+                android:layout_width="105dp"
+                android:layout_height="45dp"
+                android:layout_gravity="center"
+                android:id="@+id/login_button"
+                android:text="登录"
+                android:textSize="30dp"
+                android:textColor="@color/colorWhite"
+                android:gravity="center"
+                android:background="@color/colorEnterBtn"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>
