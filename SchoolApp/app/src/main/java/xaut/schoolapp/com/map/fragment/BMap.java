@@ -1,7 +1,6 @@
 package xaut.schoolapp.com.map.fragment;
 
 import android.app.Fragment;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +17,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
@@ -26,20 +26,20 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.overlayutil.PoiOverlay;
 import com.baidu.mapapi.search.core.PoiInfo;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
 import com.baidu.mapapi.search.poi.PoiCitySearchOption;
 import com.baidu.mapapi.search.poi.PoiDetailResult;
-import com.baidu.mapapi.search.poi.PoiDetailSearchOption;
 import com.baidu.mapapi.search.poi.PoiIndoorResult;
-import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
+
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.route.IndoorPlanNode;
 
 import java.util.List;
 
+import xaut.schoolapp.com.info.Info;
 import xaut.schoolapp.com.schoolapp.R;
 
 /**
@@ -53,6 +53,7 @@ public class BMap extends Fragment {
     private OnGetPoiSearchResultListener poiSearchResultListener;
 
     PoiSearch mPoiSearch;
+    PoiSearch mPoiSearch2;
 
     Marker mMarker;
 
@@ -71,6 +72,11 @@ public class BMap extends Fragment {
         mBaiduMap = mMapView.getMap();
 
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
+
+        smallSchool();
+        childSchool();
+
+
         mBaiduMap.setMyLocationEnabled(true);
         //声明LocationClient类
         mLocationClient = new LocationClient(getActivity().getApplicationContext());
@@ -81,6 +87,15 @@ public class BMap extends Fragment {
         //开始定位
         mLocationClient.start();
 
+        return view;
+    }
+
+
+    /**
+     * 添加marker
+     */
+
+    private void smallSchool(){         //小学
         mPoiSearch = PoiSearch.newInstance();
 
         poiSearchResultListener = new OnGetPoiSearchResultListener() {
@@ -93,24 +108,40 @@ public class BMap extends Fragment {
                 }
 
                 if(poiResult.error == SearchResult.ERRORNO.NO_ERROR){
-                    mBaiduMap.clear();
+                    //mBaiduMap.clear();
 
                     Log.d("125", mPoiSearch.toString());
                     List<PoiInfo> allAddr = poiResult.getAllPoi();
                     for(PoiInfo p:allAddr){
-                        Log.d("","p.name---->" + p.name + "p.location" + p.location );
+                        Log.d("1111","p.name---->" + p.name + "p.location" + p.location );
                     }
-                    MyPoiOverlay poiOverlay = new MyPoiOverlay(mBaiduMap);
+                   /* MyPoiOverlay poiOverlay = new MyPoiOverlay(mBaiduMap);
                     poiOverlay.setData(poiResult);
                     mBaiduMap.setOnMarkerClickListener(poiOverlay);
                     poiOverlay.addToMap();
-                    poiOverlay.zoomToSpan();
+                    poiOverlay.zoomToSpan();*/
+
+                    for(PoiInfo p:allAddr){
+                        pointMarker(p.location.latitude,p.location.longitude);
+                    }
+
                 }
             }
 
             @Override
-            public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+            public void onGetPoiDetailResult(final PoiDetailResult poiDetailResult) {
 
+                BaiduMap.OnMapClickListener  listener = new BaiduMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+
+                    }
+
+                    @Override
+                    public boolean onMapPoiClick(MapPoi mapPoi) {
+                        return false;
+                    }
+                };
             }
 
             @Override
@@ -124,26 +155,95 @@ public class BMap extends Fragment {
         PoiCitySearchOption citySearchOption = new PoiCitySearchOption();
         citySearchOption.city("西安");
         citySearchOption.keyword("小学");
-        citySearchOption.pageNum(15);
+        citySearchOption.pageCapacity(100);
+        citySearchOption.pageNum(2);
         boolean xa = mPoiSearch.searchInCity(citySearchOption);
         Log.d("city",String.valueOf(xa));
-        /*Log.v("qwe","setMarker : lat : "+ lat+" lon : " + lon);
-        PoiNearbySearchOption nearbySearchOption = new PoiNearbySearchOption();
-        nearbySearchOption.location(new LatLng(lat,lon));
-        Log.d("159:","lat,lon:" + String.valueOf(lat)+","+String.valueOf(lon));
-        nearbySearchOption.keyword("美食");
-        nearbySearchOption.radius(3000);
-        nearbySearchOption.pageNum(15);
-        boolean xa = mPoiSearch.searchNearby(nearbySearchOption);
-        Log.d("nearby",String.valueOf(xa));*/
+    }
 
-        return view;
+    private void childSchool(){         //幼儿园
+
+        mPoiSearch2 = PoiSearch.newInstance();
+        poiSearchResultListener = new OnGetPoiSearchResultListener() {
+            @Override
+            public void onGetPoiResult(PoiResult poiResult) {
+                Log.d("123",poiResult.toString());
+                if((poiResult == null) || (poiResult.error == SearchResult.ERRORNO.RESULT_NOT_FOUND)){
+                    Log.d("124", "onGetPoiResult: ");
+                    Toast.makeText(getActivity(), "未能搜索到附近学校", Toast.LENGTH_LONG).show();
+                }
+
+                if(poiResult.error == SearchResult.ERRORNO.NO_ERROR){
+                    //mBaiduMap.clear();
+
+                    Log.d("126", mPoiSearch2.toString());
+                    List<PoiInfo> allAddr = poiResult.getAllPoi();
+                    for(PoiInfo p:allAddr){
+                        Log.d("1111","p.name---->" + p.name + "p.location" + p.location );
+                    }
+                   /* MyPoiOverlay poiOverlay = new MyPoiOverlay(mBaiduMap);
+                    poiOverlay.setData(poiResult);
+                    mBaiduMap.setOnMarkerClickListener(poiOverlay);
+                    poiOverlay.addToMap();
+                    poiOverlay.zoomToSpan();*/
+
+                    for(PoiInfo p:allAddr){
+                        pointMarker2(p.location.latitude,p.location.longitude);
+                    }
+
+
+                }
+            }
+
+            @Override
+            public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+
+
+            }
+
+            @Override
+            public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+
+            }
+        };
+
+        mPoiSearch2.setOnGetPoiSearchResultListener(poiSearchResultListener);
+
+        PoiCitySearchOption citySearchOption2 = new PoiCitySearchOption();
+        citySearchOption2.city("西安");
+        citySearchOption2.keyword("幼儿园");
+        citySearchOption2.keyword("儿童学校");
+        citySearchOption2.pageCapacity(100);
+        citySearchOption2.pageNum(1);
+        boolean xb= mPoiSearch2.searchInCity(citySearchOption2);
+        Log.d("city",String.valueOf(xb));
     }
 
 
-    /**
-     * 添加marker
-     */
+    private void pointMarker(double lat,double lon){        //小学图片
+        Log.d("pcp", "pointMarker: lat:" + lat + "lon"  + lon);
+        LatLng point = new LatLng(lat,lon);
+
+        BitmapDescriptor bitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.xiao);
+        OverlayOptions option = new MarkerOptions()
+                .position(point)
+                .icon(bitmap);
+        mBaiduMap.addOverlay(option);
+    }
+
+    private void pointMarker2(double lat,double lon){      //幼儿园图片
+        Log.d("pcp", "pointMarker: lat:" + lat + "lon"  + lon);
+        LatLng point = new LatLng(lat,lon);
+
+        BitmapDescriptor bitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.v);
+        OverlayOptions option = new MarkerOptions()
+                .position(point)
+                .icon(bitmap);
+        mBaiduMap.addOverlay(option);
+    }
+
     private Marker setMarker(Marker mMarker) {
         Log.v("pcw","setMarker : lat : "+ lat+" lon : " + lon);
         //定义Maker坐标点
@@ -169,7 +269,7 @@ public class BMap extends Fragment {
         //定义地图状态
         MapStatus mMapStatus = new MapStatus.Builder()
                 .target(cenpt)
-                .zoom(18)
+                .zoom(13)
                 .build();
         //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
         MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
@@ -187,7 +287,7 @@ public class BMap extends Fragment {
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy
         );//可选，默认高精度，设置定位模式，高精度，低功耗，仅设备
         option.setCoorType("bd09ll");//可选，默认gcj02，设置返回的定位结果坐标系
-        option.setScanSpan(2000);//可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
+        option.setScanSpan(3000);//可选，默认0，即仅定位一次，设置发起定位请求的间隔需要大于等于1000ms才是有效的
         option.setIsNeedAddress(true);//可选，设置是否需要地址信息，默认不需要
         option.setOpenGps(true);//可选，默认false,设置是否使用gps
         option.setLocationNotify(true);//可选，默认false，设置是否当gps有效时按照1S1次频率输出GPS结果
@@ -290,7 +390,7 @@ public class BMap extends Fragment {
         }
     }
 
-    class MyPoiOverlay extends PoiOverlay {
+   /* class MyPoiOverlay extends PoiOverlay {
 
         public MyPoiOverlay(BaiduMap arg0) {
             super(arg0);
@@ -305,7 +405,7 @@ public class BMap extends Fragment {
                     .poiUid(poiInfo.uid));
             return true;
         }
-    }
+    }*/
 
     /**
      * 必须要实现
