@@ -77,17 +77,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="55dp"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <Button
-                android:layout_width="105dp"
+                android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:layout_gravity="center"
                 android:id="@+id/login_button"
                 android:text="登录"
                 android:textSize="30dp"
-                android:textColor="@color/colorWhite"
                 android:gravity="center"
                 android:background="@color/colorEnterBtn"/>
 

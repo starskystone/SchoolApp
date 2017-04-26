@@ -1,12 +1,19 @@
 package xaut.schoolapp.com.map.fragment;
 
+
 import android.app.Fragment;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
@@ -35,25 +42,29 @@ import com.baidu.mapapi.search.poi.PoiIndoorResult;
 
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
-import com.baidu.mapapi.search.route.IndoorPlanNode;
 
 import java.util.List;
 
-import xaut.schoolapp.com.info.Info;
 import xaut.schoolapp.com.schoolapp.R;
 
 /**
  * Created by xiaoleilei on 2017/4/15.
  */
 
-public class BMap extends Fragment {
+public class BMap extends Fragment implements View.OnClickListener{
+
     private MapView mMapView;
     private boolean isFirstLocation = true;
+    private FloatingActionButton fab,fabtext;
+    private ToggleButton mTBbeilin;
+    private boolean mbBelin = false;
+    private LinearLayout mLinearLayout;
+    private PoiDetailResult mPoiDetailResult;
 
     private OnGetPoiSearchResultListener poiSearchResultListener;
 
     PoiSearch mPoiSearch;
-    PoiSearch mPoiSearch2;
+    //PoiSearch mPoiSearch2;
 
     Marker mMarker;
 
@@ -61,21 +72,58 @@ public class BMap extends Fragment {
     public BDLocationListener myListener = new MyLocationListener();
     public BaiduMap mBaiduMap;
 
+
+
     private double lat;  //纬度
     private double lon;  //经度
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         SDKInitializer.initialize(getActivity().getApplication());
         View view = inflater.inflate(R.layout.map_fragment, container, false);
+
+        final int width = 70;
+        final int heigth = 50;
+        final int margin = 10;
+
+        mLinearLayout = (LinearLayout)view.findViewById(R.id.side_manage);
+        final ToggleButton toggleButton1 = new ToggleButton(getActivity());
+        toggleButton1.setText("雁塔区");
+        toggleButton1.setTextOn("雁塔区");
+        toggleButton1.setTextOff("雁塔区");
+
+        //ViewGroup.LayoutParams para = toggleButton1.getLayoutParams();
+        //para.width = 70;
+        //para.height = 50;
+       // toggleButton1.setBackgroundResource(R.color.colorGray);
+       // toggleButton1.setLayoutParams(para);
+
+        //mLinearLayout.addView(toggleButton1);
+
+
+
         mMapView = (MapView) view.findViewById(R.id.bmap_view);
         //获取BaiduMap对象
+        fab =(FloatingActionButton)view.findViewById(R.id.fab);
+        fabtext = (FloatingActionButton)view.findViewById(R.id.fabtext);
+        fab.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        mTBbeilin = (ToggleButton)view.findViewById(R.id.beilin);
+
+
+
         mBaiduMap = mMapView.getMap();
 
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
 
-        smallSchool();
-        childSchool();
+        fabtext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                smallSchool();
+               // childSchool();
+            }
+        });
 
+
+        //定位自己
 
         mBaiduMap.setMyLocationEnabled(true);
         //声明LocationClient类
@@ -86,11 +134,45 @@ public class BMap extends Fragment {
         initLocation();
         //开始定位
         mLocationClient.start();
+        fab.setOnClickListener(this);
+        mTBbeilin.setOnClickListener(this);
+
+
+        //地图上的事件监听
+        BaiduMap.OnMapClickListener  listener = new BaiduMap.OnMapClickListener() {
+
+            @Override
+            public void onMapClick(LatLng latLng) {
+
+            }
+
+            @Override
+            public boolean onMapPoiClick(MapPoi mapPoi) {
+                return false;
+            }
+        };
+        mBaiduMap.setOnMapClickListener(listener);
 
         return view;
     }
 
-
+    public void onClick(View v){
+        switch (v.getId()){
+            case R.id.fab:setUserMapCenter();
+                break;
+            case R.id.beilin:
+                if(mbBelin == false){
+                    mTBbeilin.setBackgroundResource(R.color.colorAccent);
+                    mbBelin = true;
+                }else if(mbBelin == true){
+                    mTBbeilin.setBackgroundResource(R.color.colorGray);
+                    mbBelin = false;
+                }
+                break;
+            default:
+                break;
+        }
+    }
     /**
      * 添加marker
      */
@@ -131,17 +213,7 @@ public class BMap extends Fragment {
             @Override
             public void onGetPoiDetailResult(final PoiDetailResult poiDetailResult) {
 
-                BaiduMap.OnMapClickListener  listener = new BaiduMap.OnMapClickListener() {
-                    @Override
-                    public void onMapClick(LatLng latLng) {
-
-                    }
-
-                    @Override
-                    public boolean onMapPoiClick(MapPoi mapPoi) {
-                        return false;
-                    }
-                };
+                mPoiDetailResult = poiDetailResult;
             }
 
             @Override
@@ -161,7 +233,7 @@ public class BMap extends Fragment {
         Log.d("city",String.valueOf(xa));
     }
 
-    private void childSchool(){         //幼儿园
+   /* private void childSchool(){         //幼儿园
 
         mPoiSearch2 = PoiSearch.newInstance();
         poiSearchResultListener = new OnGetPoiSearchResultListener() {
@@ -181,16 +253,15 @@ public class BMap extends Fragment {
                     for(PoiInfo p:allAddr){
                         Log.d("1111","p.name---->" + p.name + "p.location" + p.location );
                     }
-                   /* MyPoiOverlay poiOverlay = new MyPoiOverlay(mBaiduMap);
+                   *//* MyPoiOverlay poiOverlay = new MyPoiOverlay(mBaiduMap);
                     poiOverlay.setData(poiResult);
                     mBaiduMap.setOnMarkerClickListener(poiOverlay);
                     poiOverlay.addToMap();
-                    poiOverlay.zoomToSpan();*/
+                    poiOverlay.zoomToSpan();*//*
 
                     for(PoiInfo p:allAddr){
                         pointMarker2(p.location.latitude,p.location.longitude);
                     }
-
 
                 }
             }
@@ -217,6 +288,10 @@ public class BMap extends Fragment {
         citySearchOption2.pageNum(1);
         boolean xb= mPoiSearch2.searchInCity(citySearchOption2);
         Log.d("city",String.valueOf(xb));
+    }*/
+
+    private void showPoint(double lat,double lon){
+
     }
 
 
