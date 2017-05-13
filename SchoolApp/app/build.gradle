@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
+
+    aaptOptions.cruncherEnabled = false
+    aaptOptions.useNewCruncher = false
     signingConfigs {
         config {
             keyAlias 'china'
@@ -36,5 +39,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/BaiduLBS_Android.jar')
     compile 'com.android.support:design:25.2.0'
+    compile files('libs/json-lib-2.1-jdk15.jar')
 }
 

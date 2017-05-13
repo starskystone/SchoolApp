@@ -3,7 +3,7 @@
           package="xaut.schoolapp.com.schoolapp">
 
     <application
-
+        android:name="xaut.schoolapp.com.Application.MyApplicaition"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -14,17 +14,17 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="Dwc5XKXdT7ILZT1L9G3Qmg4f7LPOofrC"/>
 
-        <activity android:name=".Login">
+        <activity android:name="xaut.schoolapp.com.view.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="xaut.schoolapp.com.map.Map"/>
-        <activity android:name="xaut.schoolapp.com.info.Info"/>
-        <activity android:name="xaut.schoolapp.com.setting.Setting"/>
-       <!-- <activity android:name="xaut.schoolapp.com.info.Info"/>-->
+        <activity android:name="xaut.schoolapp.com.view.MapActivity"/>
+        <activity android:name="xaut.schoolapp.com.view.Info"/>
+        <activity android:name="xaut.schoolapp.com.view.Setting"/>
+       <!-- <activity android:name="xaut.schoolapp.com.view.Info"/>-->
 
         <service
             android:name="com.baidu.location.f" android:enabled="true" android:process=":remote">
