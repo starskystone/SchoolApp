@@ -184,13 +184,15 @@ private ProgressDialog mydialog;
         Button busRoute;
     }
 
+
+    //底部信息
     private void popuInfo(LinearLayout mMarkerly, Schoolinfo schoolinfo){
         ViewHolder viewHolder = null;
         if(mMarkerly.getTag() == null){
             viewHolder = new ViewHolder();
             viewHolder.infoImg = (ImageView)mMarkerly.findViewById(R.id.school_image);
             viewHolder.schoolName = (TextView)mMarkerly.findViewById(R.id.text_school);
-            viewHolder.schoolInfo = (Button)mMarkerly.findViewById(R.id.schoolInfo);
+            viewHolder.schoolInfo = (Button)mMarkerly.findViewById(R.id.schoolInfo);            //学校详情按钮
             viewHolder.busRoute = (Button)mMarkerly.findViewById(R.id.bus_route);
             /*viewHolder.schoolName.getBackground().setAlpha(5);
             viewHolder.busRoute.getBackground().setAlpha(5);*/
@@ -208,6 +210,7 @@ private ProgressDialog mydialog;
         viewHolder.schoolInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //这里click后转到网页
 
             }
         });
