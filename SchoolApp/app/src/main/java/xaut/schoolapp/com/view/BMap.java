@@ -1,14 +1,12 @@
 package xaut.schoolapp.com.view;
 
-
 import android.app.Fragment;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.RecyclerView;
+
+
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,8 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
+
 
 
 import com.baidu.location.BDLocation;
@@ -31,7 +28,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.InfoWindow;
+
 import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
@@ -41,17 +38,13 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
-import com.baidu.mapapi.search.poi.PoiDetailResult;
 
-import com.baidu.mapapi.search.poi.PoiSearch;
 
 import org.json.JSONException;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.Map;
-import java.util.zip.Inflater;
+
 
 import xaut.schoolapp.com.Util.ToastUtil;
 import xaut.schoolapp.com.controller.RequestWebServece;
@@ -68,16 +61,6 @@ public class BMap extends Fragment {
 
     private MapView mMapView;
     private boolean isFirstLocation = true;
-    private FloatingActionButton fab,fabtext;
-    private ToggleButton mTBbeilin;
-    private boolean mbBelin = false;
-    private LinearLayout mLinearLayout;
-    private PoiDetailResult mPoiDetailResult;
-
-    private OnGetPoiSearchResultListener poiSearchResultListener;
-
-    PoiSearch mPoiSearch;
-    //PoiSearch mPoiSearch2;
 
     Marker mMarker;
 
