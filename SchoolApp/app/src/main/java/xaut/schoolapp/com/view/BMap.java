@@ -53,6 +53,7 @@ import java.util.*;
 import java.util.Map;
 import java.util.zip.Inflater;
 
+import xaut.schoolapp.com.Util.ToastUtil;
 import xaut.schoolapp.com.controller.RequestWebServece;
 import xaut.schoolapp.com.controller.ResponseDataHandle;
 import xaut.schoolapp.com.model.AppData;
@@ -98,7 +99,6 @@ private ProgressDialog mydialog;
         mMapView = (MapView) view.findViewById(R.id.bmap_view);
         final LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.marker_info);
         mBaiduMap = mMapView.getMap();
-
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
 
         //定位自己
@@ -128,13 +128,17 @@ private ProgressDialog mydialog;
                     Log.d("233", data);
                     final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(data);
                     Log.d("233",list2.toString());
+                    if (list2 == null){
+                        ToastUtil.ToastShort("未查询到结果");
+                    }
+                        if(list2 != null){
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             mydialog.dismiss();
                             addInfosOverlay(list2);
                         }
-                    });
+                    });}
 
                 }catch (JSONException e)
                 {
@@ -156,6 +160,7 @@ private ProgressDialog mydialog;
                 return true;
             }
         });
+
         mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng arg0) {
@@ -187,6 +192,9 @@ private ProgressDialog mydialog;
             viewHolder.schoolName = (TextView)mMarkerly.findViewById(R.id.text_school);
             viewHolder.schoolInfo = (Button)mMarkerly.findViewById(R.id.schoolInfo);
             viewHolder.busRoute = (Button)mMarkerly.findViewById(R.id.bus_route);
+            /*viewHolder.schoolName.getBackground().setAlpha(5);
+            viewHolder.busRoute.getBackground().setAlpha(5);*/
+
 
             TextPaint textPaint = viewHolder.schoolName.getPaint();
             textPaint.setFakeBoldText(true);

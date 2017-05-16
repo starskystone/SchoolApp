@@ -35,7 +35,7 @@
     <LinearLayout android:id="@+id/marker_info"
                   android:layout_height="150dp"
                   android:layout_width="match_parent"
-                  android:background="@color/colorWhite"
+                  android:background="@drawable/background_with_shadow"
                   android:layout_gravity="bottom"
                   android:orientation="vertical"
                   android:visibility="invisible"
@@ -67,14 +67,16 @@
                 android:layout_width="wrap_content"
                 android:text="学校详情"
                 android:textSize="15dp"
-                android:id="@+id/schoolInfo"/>
+                android:id="@+id/schoolInfo"
+                android:background="@color/colorPrimary"/>
 
             <Button android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:text="公交路线"
                 android:textSize="15dp"
-                android:id="@+id/bus_route"/>
+                android:id="@+id/bus_route"
+                android:background="@color/colorPrimary"/>
 
             </LinearLayout>>
 

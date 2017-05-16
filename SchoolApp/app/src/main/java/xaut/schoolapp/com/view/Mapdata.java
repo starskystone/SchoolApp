@@ -2,24 +2,26 @@ package xaut.schoolapp.com.view;
 
 import android.app.Fragment;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
+
 import android.widget.ListView;
 
-import net.sf.json.JSONObject;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import xaut.schoolapp.com.controller.RequestWebServece;
+import xaut.schoolapp.com.controller.ResponseDataHandle;
 import xaut.schoolapp.com.model.AppData;
+import xaut.schoolapp.com.model.Schoolinfo;
 import xaut.schoolapp.com.schoolapp.R;
 
 /**
@@ -28,52 +30,39 @@ import xaut.schoolapp.com.schoolapp.R;
 
 public class Mapdata extends Fragment {
     private ListView mList;
-    private EditText mEditText;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.mapview_fragment, container, false);
-        mEditText = (EditText)view.findViewById(R.id.tv_SchoolName);
+
         mList = (ListView) view.findViewById(R.id.list_view);
 
-        mEditText.addTextChangedListener(new TextWatcher() {
+        Bundle bundle = new Bundle();
+        final ArrayList<String> info = bundle.getStringArrayList("info");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_expandable_list_item_1, info);
+        if(info == null){
+            adapter = null;
+            mList.setAdapter(adapter);
+        }
+        else {
+            Log.d("233",adapter.toString());
+            mList.setAdapter(adapter);
+        }
+
+        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s,int start,int count,int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s,int start,int before,int count) {
-
-                String params =  mEditText.getText().toString();
-                String url = new AppData().searchItem;
+            public void onItemClick(AdapterView<?> parent,View view,int position,long id) {
                 try {
-                    String data = new RequestWebServece().submitInfo(url,params);
-                    org.json.JSONObject jsonObject = new org.json.JSONObject(data);
-                    if (jsonObject.get("retCode") == "-1") {
+                    String data = info.get(position);
+                    String url = new AppData().searchSchool;
 
-                    }
-                    if(jsonObject.get("retCode") == "0"){
-                        org.json.JSONArray jsonArray = jsonObject.getJSONArray("info");
-                        ArrayList<String> info = new ArrayList<>();
-                        for(int i = 0 ; i < jsonArray.length(); i++){
-                            info.add(jsonArray.getString(i));
-                        }
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_expandable_list_item_1, info);
-                        mList.setAdapter(adapter);
-                    }
+                    String schoolInfo = RequestWebServece.submitSchoolName(url,data);
+                    final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(data);
 
-                }catch (JSONException e)
-                {
+                }catch (JSONException e){
                     e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-
-            }
+                }}
         });
 
         return view;

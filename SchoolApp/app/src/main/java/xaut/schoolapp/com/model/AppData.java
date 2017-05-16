@@ -7,4 +7,5 @@ package xaut.schoolapp.com.model;
 public class AppData {
     public final String loginSchool = "http://10.50.28.250:1104/Map/SearchByDistrictAndType/";
     public final String searchItem = "http://10.50.28.250:1104/Map/SearchItem/";
+    public final String searchSchool = "http://10.50.28.250:1104/Map/SearchSchool/";
 }
