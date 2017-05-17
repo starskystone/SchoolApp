@@ -38,6 +38,15 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.overlayutil.DrivingRouteOverlay;
+import com.baidu.mapapi.search.core.RouteLine;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.route.DrivingRouteLine;
+import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
+import com.baidu.mapapi.search.route.PlanNode;
+import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.TransitRoutePlanOption;
 
 
 import org.json.JSONException;
@@ -68,16 +77,34 @@ public class BMap extends Fragment {
     public BDLocationListener myListener = new MyLocationListener();
     public BaiduMap mBaiduMap;
 
+    private RouteLine mRouteLine = null;
+    private RoutePlanSearch mRoutePlanSearch = null;
 
-private ProgressDialog mydialog;
+    private PlanNode stNode = null;
+    private PlanNode enNode = null;
+    private ImageView infoImg;
+    private TextView schoolName;
+    private Button schoolInfo;
+    private Button busRoute;
+
+    private ProgressDialog mydialog;
     private double lat;  //纬度
     private double lon;  //经度
     Handler handler;
+
+    private DrivingRouteOverlay mRouteOverlay;
 
 
     public View onCreateView(final LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         SDKInitializer.initialize(getActivity().getApplication());
         final View view = inflater.inflate(R.layout.map_fragment, container, false);
+
+        infoImg = (ImageView)view.findViewById(R.id.school_image);
+        schoolName = (TextView)view.findViewById(R.id.text_school);
+        schoolInfo = (Button)view.findViewById(R.id.schoolInfo);            //学校详情按钮
+        busRoute = (Button)view.findViewById(R.id.bus_route);
+        schoolName.getBackground().setAlpha(5);
+        busRoute.getBackground().setAlpha(5);
 
         mMapView = (MapView) view.findViewById(R.id.bmap_view);
         final LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.marker_info);
@@ -97,6 +124,9 @@ private ProgressDialog mydialog;
         handler=new Handler();
         mydialog=new ProgressDialog(getActivity());
         mydialog.show();
+
+
+
       new Thread(new Runnable() {
             @Override
             public void run() {
@@ -138,7 +168,7 @@ private ProgressDialog mydialog;
                 Schoolinfo mapinfo = (Schoolinfo) marker.getExtraInfo().get("mapinfo");
 
                 linearLayout.setVisibility(View.VISIBLE);
-                popuInfo(linearLayout,mapinfo);
+                popuInfo(mapinfo);
 
                 return true;
             }
@@ -159,38 +189,21 @@ private ProgressDialog mydialog;
         return view;
     }
 
-    private class ViewHolder
+
+    /*private class ViewHolder
     {
         ImageView infoImg;
         TextView schoolName;
         Button schoolInfo;
         Button busRoute;
-    }
+    }*/
 
 
     //底部信息
-    private void popuInfo(LinearLayout mMarkerly, Schoolinfo schoolinfo){
-        ViewHolder viewHolder = null;
-        if(mMarkerly.getTag() == null){
-            viewHolder = new ViewHolder();
-            viewHolder.infoImg = (ImageView)mMarkerly.findViewById(R.id.school_image);
-            viewHolder.schoolName = (TextView)mMarkerly.findViewById(R.id.text_school);
-            viewHolder.schoolInfo = (Button)mMarkerly.findViewById(R.id.schoolInfo);            //学校详情按钮
-            viewHolder.busRoute = (Button)mMarkerly.findViewById(R.id.bus_route);
-            /*viewHolder.schoolName.getBackground().setAlpha(5);
-            viewHolder.busRoute.getBackground().setAlpha(5);*/
-
-
-            TextPaint textPaint = viewHolder.schoolName.getPaint();
-            textPaint.setFakeBoldText(true);
-            mMarkerly.setTag(viewHolder);
-        }
-
-        viewHolder = (ViewHolder) mMarkerly.getTag();
-        viewHolder.schoolName.setText(schoolinfo.getOrganizationName());
-        viewHolder.infoImg.setImageResource(R.drawable.cc3);
-
-        viewHolder.schoolInfo.setOnClickListener(new View.OnClickListener() {
+    private void popuInfo(final Schoolinfo schoolinfo){
+        schoolName.setText(schoolinfo.getOrganizationName());
+        infoImg.setImageResource(R.drawable.cc3);
+        schoolInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //这里click后转到网页
@@ -198,14 +211,45 @@ private ProgressDialog mydialog;
             }
         });
 
-        viewHolder.busRoute.setOnClickListener(new View.OnClickListener() {
+        /*busRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                mRoutePlanSearch = RoutePlanSearch.newInstance();
+             mRoutePlanSearch.setOnGetRoutePlanResultListener();
+                if(mRouteLine != null){
+                    mRouteLine = null;
+                }
+                if(mRouteOverlay != null){
+                    mRouteOverlay.removeFromMap();
+                }
+                LatLng stlatlng = new LatLng(lat,lon);
+                LatLng enlatlng = new LatLng(schoolinfo.getY(),schoolinfo.getX());
+
+                stNode = PlanNode.withLocation(stlatlng);
+                enNode = PlanNode.withLocation(enlatlng);
+                mRoutePlanSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).to(enNode).city("西安"));
+
             }
-        });
+        });*/
     }
 
+
+    public void onGetDrivingRouteResult(final DrivingRouteResult result){
+        if(result == null || result.error != SearchResult.ERRORNO.NO_ERROR){
+            ToastUtil.ToastShort("抱歉没找到结果");
+        }
+        if(result.error == SearchResult.ERRORNO.AMBIGUOUS_KEYWORD){
+            return;
+        }
+        if(result.error == SearchResult.ERRORNO.NO_ERROR){
+            mRouteLine = result.getRouteLines().get(0);
+            DrivingRouteOverlay overlay = new DrivingRouteOverlay(mBaiduMap);
+
+
+
+        }
+    }
 
     /**
      * 添加marker
