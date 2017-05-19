@@ -41,12 +41,16 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.overlayutil.DrivingRouteOverlay;
 import com.baidu.mapapi.search.core.RouteLine;
 import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.route.DrivingRouteLine;
+import com.baidu.mapapi.search.route.BikingRouteResult;
 import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRouteResult;
 import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
 import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.TransitRoutePlanOption;
+import com.baidu.mapapi.search.route.TransitRouteResult;
+import com.baidu.mapapi.search.route.WalkingRouteResult;
 
 
 import org.json.JSONException;
@@ -190,15 +194,6 @@ public class BMap extends Fragment {
     }
 
 
-    /*private class ViewHolder
-    {
-        ImageView infoImg;
-        TextView schoolName;
-        Button schoolInfo;
-        Button busRoute;
-    }*/
-
-
     //底部信息
     private void popuInfo(final Schoolinfo schoolinfo){
         schoolName.setText(schoolinfo.getOrganizationName());
@@ -211,46 +206,79 @@ public class BMap extends Fragment {
             }
         });
 
-        /*busRoute.setOnClickListener(new View.OnClickListener() {
+        busRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                searchRoute(schoolinfo);
 
-                mRoutePlanSearch = RoutePlanSearch.newInstance();
-             mRoutePlanSearch.setOnGetRoutePlanResultListener();
-                if(mRouteLine != null){
-                    mRouteLine = null;
-                }
-                if(mRouteOverlay != null){
-                    mRouteOverlay.removeFromMap();
-                }
-                LatLng stlatlng = new LatLng(lat,lon);
-                LatLng enlatlng = new LatLng(schoolinfo.getY(),schoolinfo.getX());
+    }});
+    }
 
-                stNode = PlanNode.withLocation(stlatlng);
-                enNode = PlanNode.withLocation(enlatlng);
-                mRoutePlanSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).to(enNode).city("西安"));
+
+    //路线搜索
+    private void searchRoute(Schoolinfo schoolinfo){
+        mRoutePlanSearch = RoutePlanSearch.newInstance();
+        if(mRouteLine != null){
+            mRouteLine = null;
+        }
+        if(mRouteOverlay != null){
+            mRouteOverlay.removeFromMap();
+        }
+        OnGetRoutePlanResultListener routelistener = new OnGetRoutePlanResultListener() {
+            @Override
+            public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
 
             }
-        });*/
+
+            @Override
+            public void onGetTransitRouteResult(TransitRouteResult transitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetMassTransitRouteResult(MassTransitRouteResult massTransitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
+                if(drivingRouteResult == null || drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR){
+                    ToastUtil.ToastShort("抱歉没找到结果");
+                }
+                if(drivingRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_KEYWORD){
+                    return;
+                }
+                if(drivingRouteResult.error == SearchResult.ERRORNO.NO_ERROR){
+                    mRouteLine = drivingRouteResult.getRouteLines().get(0);
+                    DrivingRouteOverlay overlay = new DrivingRouteOverlay(mBaiduMap);
+                    overlay.setData(drivingRouteResult.getRouteLines().get(0));
+                    overlay.addToMap();
+                    overlay.zoomToSpan();
+                }
+            }
+
+            @Override
+            public void onGetIndoorRouteResult(IndoorRouteResult indoorRouteResult) {
+
+            }
+
+            @Override
+            public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+
+            }
+        };
+        mRoutePlanSearch.setOnGetRoutePlanResultListener(routelistener);
+
+        LatLng stlatlng = new LatLng(lat,lon);
+        LatLng enlatlng = new LatLng(schoolinfo.getY(),schoolinfo.getX());
+
+        stNode = PlanNode.withLocation(stlatlng);
+        enNode = PlanNode.withLocation(enlatlng);
+        mRoutePlanSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).to(enNode).city("西安"));
+
+        mRoutePlanSearch.destroy();
+
     }
-
-
-    public void onGetDrivingRouteResult(final DrivingRouteResult result){
-        if(result == null || result.error != SearchResult.ERRORNO.NO_ERROR){
-            ToastUtil.ToastShort("抱歉没找到结果");
-        }
-        if(result.error == SearchResult.ERRORNO.AMBIGUOUS_KEYWORD){
-            return;
-        }
-        if(result.error == SearchResult.ERRORNO.NO_ERROR){
-            mRouteLine = result.getRouteLines().get(0);
-            DrivingRouteOverlay overlay = new DrivingRouteOverlay(mBaiduMap);
-
-
-
-        }
-    }
-
     /**
      * 添加marker
      */
