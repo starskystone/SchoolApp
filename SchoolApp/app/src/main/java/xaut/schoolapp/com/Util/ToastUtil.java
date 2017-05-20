@@ -1,7 +1,5 @@
 package xaut.schoolapp.com.Util;
 
-import android.app.Application;
-import android.content.Context;
 import android.widget.Toast;
 
 import xaut.schoolapp.com.Application.MyApplicaition;
@@ -17,11 +15,22 @@ public class ToastUtil {
     /**
      *显示short Toast*/
     public static void ToastShort(String msg){
-       if(toast==null) {
+       if(toast == null) {
             Toast.makeText(MyApplicaition.getInstance(),msg,Toast.LENGTH_SHORT).show();
         }
      else{
            toast.setText(msg);
        }
+    }
+
+    /**
+     * 显示long Toast*/
+    public static void ToastLong(String msg){
+        if(toast == null){
+            Toast.makeText(MyApplicaition.getInstance(),msg,Toast.LENGTH_LONG).show();
+        }
+        else {
+            toast.setText(msg);
+        }
     }
 }

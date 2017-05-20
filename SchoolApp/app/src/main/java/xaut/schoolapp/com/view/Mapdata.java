@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 
+import com.baidu.mapapi.map.BaiduMap;
+
 import org.json.JSONException;
 
 import java.util.ArrayList;
@@ -37,7 +39,7 @@ public class Mapdata extends Fragment {
 
         mList = (ListView) view.findViewById(R.id.list_view);
 
-        Bundle bundle = new Bundle();
+        Bundle bundle = getArguments();
         final ArrayList<String> info = bundle.getStringArrayList("info");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_expandable_list_item_1, info);
@@ -58,7 +60,9 @@ public class Mapdata extends Fragment {
                     String url = new AppData().searchSchool;
 
                     String schoolInfo = RequestWebServece.submitSchoolName(url,data);
-                    final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(data);
+                    final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(schoolInfo);
+                    BMap m = new BMap();
+                    m.addInfosOverlay(list2);
 
                 }catch (JSONException e){
                     e.printStackTrace();

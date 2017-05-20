@@ -56,8 +56,14 @@
             android:text="登录名:"
             android:textSize="20dp"
             android:layout_marginLeft="70dp"
-            android:layout_gravity="center_vertical"
-            android:id="@+id/tv_UserName"/>
+            android:layout_gravity="center_vertical"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:layout_marginLeft="150dp"
+            android:id="@+id/tv_UserName"
+            android:layout_gravity="center_vertical"/>
     </FrameLayout>
 
     <FrameLayout
@@ -71,8 +77,14 @@
             android:layout_gravity="center_vertical"
             android:text="姓名:"
             android:textSize="20dp"
-            android:layout_marginLeft="20dp"
-            android:id="@+id/tv_RealName"/>
+            android:layout_marginLeft="20dp"/>
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/tv_RealName"
+            android:layout_gravity="center_vertical"
+            android:textSize="20dp"
+            android:layout_marginLeft="80dp"/>
+
     </FrameLayout>
     >
 
@@ -87,7 +99,13 @@
             android:layout_gravity="center_vertical"
             android:text="性别:"
             android:textSize="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="20dp"/>
+        <TextView
+            android:layout_gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:textSize="20dp"
             android:id="@+id/tv_UserSex"/>
     </FrameLayout>
 
@@ -102,7 +120,13 @@
             android:layout_gravity="center_vertical"
             android:text="电话:"
             android:textSize="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="20dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="20dp"
             android:id="@+id/tv_UserTel"/>
     </FrameLayout>
 
@@ -117,7 +141,13 @@
             android:layout_gravity="center_vertical"
             android:text="单位:"
             android:textSize="20dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="20dp"/>
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="20dp"
+            android:layout_marginLeft="80dp"
             android:id="@+id/tv_UserUnit"/>
     </FrameLayout>
 
