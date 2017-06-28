@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width = device-width, initial_scale = 1.0, user-scalable = 0"/>
+    <title>NewSchoolInfo</title>
+    <style>
+        .allPage {
+            width: 100%;
+            max-width: 640px;
+            min-width: 300px;
+            margin: 0 auto;
+            _height: 1000px;
+            min-height: 1000px;
+            /*border: 1px solid #2BD5D5;*/
+        }
+
+        .title {
+            -webkit-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            display: table;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            width: 100%;
+            margin: 0 auto;
+            height: 80px;
+            background: #2BD5D5;
+            vertical-align: middle;
+
+        }
+
+        #cell {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        table {
+            margin: 0 auto;
+            font-size: smaller;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        .InfoBox {
+            _height: 200px;
+            min-height: 200px;
+            width: 90%;
+            font-size: 15px;
+            border: 4px double #2BD5D5;
+            margin : 0 auto;
+            font-family: 微软雅黑;
+
+        }
+
+        .table-c table {
+            border-right: 1px solid gainsboro;
+            border-bottom: 1px solid gainsboro;
+            font-size: smaller;
+        }
+
+        .table-c table td {
+            border-left: 1px solid gainsboro;
+            border-top: 1px solid gainsboro
+        }
+
+        /*标题栏*/
+        .table-b {
+            font-size: larger;
+            font-weight: bold;
+
+            width: 90%;
+            margin-left: 5%;
+            margin-right: 5%;
+
+            text-align: center;
+            border-bottom: #2bd5d5;
+
+        }
+
+        .td_title {
+            border-bottom: 5px solid #2BD5D5;
+            width: 10%;
+            text-align: right;
+            font-weight: bold;
+            color: #fcd64c;
+            font-size: 26px;
+            font-family: Consolas;
+        }
+
+        .td_content {
+            border-bottom: 5px solid #4f46f5;
+            width: 70%;
+            text-align: left;
+            font-weight: bold;
+            font-size: 20px;
+            font-family: 微软雅黑;
+        }
+    </style>
+
+
+</head>
+<body onload="ChangeInfo()">
+
+<div class="allPage">
+    <div class="title">
+        <div id="cell">
+            <table width="100%" border="0">
+                <tr>
+                    <td rowspan="3" width="20%" id="schoolIcon"><img src="Icon_bg.jpg" width="105" height="60"/></td>
+                    <td id="schoolName">学校名称：</td>
+                </tr>
+                <tr>
+                    <td id="hostingType">举办类型： </td>
+                </tr>
+                <tr>
+                    <td id="address">详细地址： </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    <br>
+    <table class="table-b">
+        <tr>
+            <td class="td_title">
+                No1.
+            </td>
+            <td class="td_content">
+                学校简介
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+    <div class="InfoBox">
+        <p id="schoolInfo"></p>
+    </div>
+
+    <br><br>
+
+
+    <table width="100%" border="0" align="center">
+        <tr>
+            <td><img src="fax.png" width="50" height="50"/></td>
+            <td><img src="phone.png" width="50" height="50"/></td>
+            <td><img src="email.png" width="50" height="50"/></td>
+        </tr>
+        <tr align="center">
+            <td>
+                <HR width="90">
+            </td>
+            <td>
+                <HR width="90">
+            </td>
+            <td>
+                <HR width="90">
+            </td>
+        </tr>
+        <tr align="center">
+            <td><b id="fax">传真：</b></td>
+            <td><b id="phone">电话：</b></td>
+            <td><b id="email">邮箱：</b></td>
+        </tr>
+        <tr align="center">
+            <td>
+                <HR width="90">
+            </td>
+            <td>
+                <HR width="90">
+            </td>
+            <td>
+                <HR width="90">
+            </td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <table class="table-b">
+        <tr>
+            <td class="td_title">
+                No2.
+            </td>
+            <td class="td_content">
+                学校荣誉
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+        <div class="InfoBox">
+            <p id="honor"></p>
+        </div>
+
+
+    <br>
+    <br>
+
+    <table class="table-b">
+        <tr>
+            <td class="td_title">
+                No3.
+            </td>
+            <td class="td_content">
+                师资力量
+            </td>
+        </tr>
+    </table>
+
+
+    <br>
+
+    <div class="InfoBox">
+        <p id="faculty"></p>
+    </div>
+
+    <br>
+    <br>
+
+    <table class="table-b">
+        <tr>
+            <td class="td_title">
+                No4.
+            </td>
+            <td class="td_content">
+                基本信息
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+    <div class="InfoBox">
+        <div class="table-c">
+            <table class="infoTable">
+                <tr>
+                    <td>
+                        学校名称
+                    </td>
+                    <td id="tSchoolName">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        建校时间
+                    </td>
+                    <td id="tBuildTime">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        所在省
+                    </td>
+                    <td id="tProvince">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        所在市
+                    </td>
+                    <td id="tCity">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        所在区
+                    </td>
+                    <td id="tArea">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        详细街道
+                    </td>
+                    <td id="tStreet">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        邮编
+                    </td>
+                    <td id="tZipCode">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        官网
+                    </td>
+                    <td id="tWeb">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        是否双语教学
+                    </td>
+                    <td id="tDoubleLanguage">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        是否民族学校
+                    </td>
+                    <td id="tNationalSchool">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <br>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function ChangeInfo(schoolNameStr, hostingTypeStr, addressStr, faxStr, phoneStr, emailStr, schoolInfoStr, honorStr, facultyStr, tSchoolNameStr, tBuildTimeStr, tProvinceStr, tCityStr, tAreaStr, tStreetStr, tZipCodeStr, tWebStr, tDoubleLanguageStr, tNationalSchoolStr) {
+        document.getElementById("schoolName").innerHTML = "学校名称：" + schoolNameStr;
+        document.getElementById("hostingType").innerHTML = "举办类型：" + hostingTypeStr;
+        document.getElementById("schoolName").innerHTML = "学校名称：" + schoolNameStr;
+        document.getElementById("hostingType").innerHTML = "举办类型：" + hostingTypeStr;
+        document.getElementById("address").innerHTML = "详细地址：" + addressStr;
+        document.getElementById("fax").innerHTML = "传真：" + faxStr;
+        document.getElementById("phone").innerHTML = "电话：" + phoneStr;
+        document.getElementById("email").innerHTML = "邮箱：" + emailStr;
+        document.getElementById("schoolInfo").innerHTML = "&nbsp;" + "&nbsp;" + schoolInfoStr;
+        document.getElementById("honor").innerHTML = "&nbsp;" + "&nbsp;" + honorStr;
+        document.getElementById("faculty").innerHTML = "&nbsp;" + "&nbsp;" + facultyStr;
+        document.getElementById("tSchoolName").innerHTML = tSchoolNameStr;
+        document.getElementById("tBuildTime").innerHTML = tBuildTimeStr;
+        document.getElementById("tProvince").innerHTML = tProvinceStr;
+        document.getElementById("tCity").innerHTML = tCityStr;
+        document.getElementById("tArea").innerHTML = tAreaStr;
+        document.getElementById("tStreet").innerHTML = tStreetStr;
+        document.getElementById("tZipCode").innerHTML = tZipCodeStr;
+        document.getElementById("tWeb").innerHTML = tWebStr;
+        document.getElementById("tDoubleLanguage").innerHTML = tDoubleLanguageStr;
+        document.getElementById("tNationalSchool").innerHTML = tNationalSchoolStr;
+    }
+
+
+</script>
+</body>
+</html>

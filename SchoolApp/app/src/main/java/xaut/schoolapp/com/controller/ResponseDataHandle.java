@@ -19,15 +19,24 @@ public class ResponseDataHandle {
 
     public static List<Schoolinfo> handleAreaResult(String jsonData) {
 
+        List<Schoolinfo> list = new ArrayList<>();
         try {
+            if(jsonData == null){
+                list = null;
+            }
+
             org.json.JSONObject jsonObject = new org.json.JSONObject(jsonData);
-            if (jsonObject.get("retCode") == "-1") {
-                return null;
+            if (jsonObject.get("retCode").toString() == "-1") {
+                list = null;
+            }
+
+            if(jsonObject.get("retCode").toString() == "1"){
+                list = null;
             }
 
             if (jsonObject.get("retCode").toString() == "0") {
                 org.json.JSONArray jsArray = jsonObject.getJSONArray("list");
-                List<Schoolinfo> list = new ArrayList<>();
+
                 for (int i = 0; i < jsArray.length(); i++) {
                     org.json.JSONObject tmp = jsArray.getJSONObject(i);
                     Schoolinfo data = new Schoolinfo();
@@ -45,16 +54,16 @@ public class ResponseDataHandle {
                     data.setOfficeTelephone(tmp.getString("officeTelephone"));
                     data.setZipcode(tmp.getString("zipcode"));
                     data.setCustomOwner(tmp.getString("customOwner"));
-
                     list.add(data);
                 }
-                return list;
-            }
 
+            }
         } catch (Exception e) {
+
             e.printStackTrace();
         }
-        return null;
+
+        return list;
     }
 }
 

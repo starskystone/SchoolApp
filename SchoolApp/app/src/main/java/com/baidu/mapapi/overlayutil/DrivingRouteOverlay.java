@@ -16,6 +16,7 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.route.DrivingRouteLine;
 import com.baidu.mapapi.search.route.DrivingRouteLine.DrivingStep;
+import com.baidu.mapapi.search.route.MassTransitRouteLine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +147,7 @@ public class DrivingRouteOverlay extends OverlayManager {
 
     /**
      * 设置路线数据
-     * 
+     *
      * @param routeLine
      *            路线数据
      */

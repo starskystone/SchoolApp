@@ -1,8 +1,10 @@
 package xaut.schoolapp.com.view;
 
+import android.app.Activity;
 import android.app.Fragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -11,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 
 import com.baidu.location.BDLocation;
@@ -28,6 +32,7 @@ import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
 
+import com.baidu.mapapi.map.InfoWindow;
 import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
@@ -38,30 +43,33 @@ import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.overlayutil.DrivingRouteOverlay;
+import com.baidu.mapapi.overlayutil.MassTransitRouteOverlay;
 import com.baidu.mapapi.search.core.RouteLine;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.route.BikingRouteResult;
+import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
 import com.baidu.mapapi.search.route.DrivingRouteResult;
 import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRoutePlanOption;
 import com.baidu.mapapi.search.route.MassTransitRouteResult;
 import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
 import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
-import com.baidu.mapapi.search.route.TransitRoutePlanOption;
 import com.baidu.mapapi.search.route.TransitRouteResult;
 import com.baidu.mapapi.search.route.WalkingRouteResult;
+import com.baidu.platform.comapi.map.B;
 
 
 import org.json.JSONException;
 
 import java.util.*;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 
-import xaut.schoolapp.com.Util.ToastUtil;
 import xaut.schoolapp.com.controller.RequestWebServece;
 import xaut.schoolapp.com.controller.ResponseDataHandle;
-import xaut.schoolapp.com.model.AppData;
+import xaut.schoolapp.com.model.UrlData;
 import xaut.schoolapp.com.model.Schoolinfo;
 import xaut.schoolapp.com.schoolapp.R;
 
@@ -69,7 +77,7 @@ import xaut.schoolapp.com.schoolapp.R;
  * Created by xiaoleilei on 2017/4/15.
  */
 
-public class BMap extends Fragment {
+public class BMap extends Fragment{
 
     private MapView mMapView;
     private boolean isFirstLocation = true;
@@ -85,31 +93,33 @@ public class BMap extends Fragment {
 
     private PlanNode stNode = null;
     private PlanNode enNode = null;
-    private ImageView infoImg;
-    private TextView schoolName;
-    private Button schoolInfo;
-    private Button busRoute;
+    private ImageView infoImg =null;
+    private TextView schoolName = null;
+    private Button schoolInfo = null;
+    private Button drivingRoute = null;
+    private Button busRoute = null;
 
-    private ProgressDialog mydialog;
+    private ProgressDialog mydialog = null;
+
     private double lat;  //纬度
     private double lon;  //经度
-    Handler handler;
+    Handler handler = null;
 
-    private DrivingRouteOverlay mRouteOverlay;
+    private ImageButton mImageButton;
+    private AutoCompleteTextView mTextView;
+
+    /*private DrivingRouteOverlay mDringRouteOverlay;
+    private MassTransitRouteOverlay mMassTransitRouteOverlay;*/
+
+    private InfoWindow infoWindow;
 
 
     public View onCreateView(final LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState) {
         SDKInitializer.initialize(getActivity().getApplication());
+
         final View view = inflater.inflate(R.layout.map_fragment, container, false);
 
-        infoImg = (ImageView)view.findViewById(R.id.school_image);
-        schoolName = (TextView)view.findViewById(R.id.text_school);
-        schoolInfo = (Button)view.findViewById(R.id.schoolInfo);            //学校详情按钮
-        busRoute = (Button)view.findViewById(R.id.bus_route);
-        schoolName.getBackground().setAlpha(5);
-        busRoute.getBackground().setAlpha(5);
-
-        mMapView = (MapView) view.findViewById(R.id.bmap_view);
+        init(view);
         final LinearLayout linearLayout = (LinearLayout)view.findViewById(R.id.marker_info);
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
@@ -125,53 +135,80 @@ public class BMap extends Fragment {
         //开始定位
         mLocationClient.start();
         handler=new Handler();
+
         mydialog=new ProgressDialog(getActivity());
         mydialog.show();
 
+        Bundle bundle = getArguments();
+        if(bundle == null){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
 
+                    Log.d("233","碑林区小学");
+                    Map<String, String> params = new HashMap();
+                    params.put("district","'碑林区'");
+                    params.put("type","'小学'");
 
-      new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Map<String, String> params = new HashMap();
-                params.put("district","'新城区'");
-                params.put("type","'小学'");
+                    String url = new UrlData().loginSchool;
 
-                String url = new AppData().loginSchool;
-
-                try {
-                    String data = new RequestWebServece().submitdata(url,params);
-                    Log.d("233", data);
-                    final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(data);
-                    Log.d("233",list2.toString());
-                    if (list2 == null){
-                        ToastUtil.ToastShort("未查询到结果");
-                    }
-                        if(list2 != null){
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mydialog.dismiss();
-                            addInfosOverlay(list2);
+                    try {
+                        String data = new RequestWebServece().submitdata(url,params);
+                        Log.d("233", data);
+                        final List<Schoolinfo>  list2 = new ResponseDataHandle().handleAreaResult(data);
+                        if (list2 == null){
+                            // Toast.makeText(getActivity(),"未查询到结果",Toast.LENGTH_SHORT).show();
                         }
-                    });}
+                        if(list2 != null){
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mydialog.dismiss();
+                                    addInfosOverlay(list2);
+                                }
+                            });}
 
-                }catch (JSONException e)
-                {
-                    e.printStackTrace();
+                    }catch (JSONException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }).start();
+            }).start();
 
+        } else {
+            ArrayList list = bundle.getStringArrayList("list");
+            List<Schoolinfo> list1 = (List<Schoolinfo>) list.get(0);
+            Log.d("111","搜索的学校");
+            mydialog.dismiss();
+            addInfosOverlay(list1);
+
+        }
 
         mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                if(marker.getExtraInfo() == null){
+
+                }else{
                 //获得marker的数据
                 Schoolinfo mapinfo = (Schoolinfo) marker.getExtraInfo().get("mapinfo");
 
-                linearLayout.setVisibility(View.VISIBLE);
-                popuInfo(mapinfo);
+                if(mapinfo == null){
+
+                }
+                else {
+                    TextView location = new TextView(getActivity());
+                    location.setBackgroundResource(R.color.colorWhite);
+                    location.setPadding(30,20,30,50);
+                    location.setText(mapinfo.getOrganizationName());
+                    final LatLng latLng = marker.getPosition();
+                    infoWindow = new InfoWindow(location,latLng,-47);
+                    mBaiduMap.showInfoWindow(infoWindow);
+
+                    linearLayout.setVisibility(View.VISIBLE);
+                    popuInfo(mapinfo);
+                }
+                }
 
                 return true;
             }
@@ -181,6 +218,7 @@ public class BMap extends Fragment {
             @Override
             public void onMapClick(LatLng arg0) {
                 linearLayout.setVisibility(View.INVISIBLE);
+                mBaiduMap.hideInfoWindow();
             }
 
             @Override
@@ -192,37 +230,118 @@ public class BMap extends Fragment {
         return view;
     }
 
+    private void init(View view){
+        infoImg = (ImageView)view.findViewById(R.id.school_image);
+        schoolName = (TextView)view.findViewById(R.id.text_school);
+        schoolInfo = (Button)view.findViewById(R.id.schoolInfo);    //学校详情按钮
+        drivingRoute = (Button)view.findViewById(R.id.driving_route);
+        busRoute = (Button)view.findViewById(R.id.bus_route);
+        mMapView = (MapView) view.findViewById(R.id.bmap_view);
+    }
+
 
     //底部信息
     private void popuInfo(final Schoolinfo schoolinfo){
         schoolName.setText(schoolinfo.getOrganizationName());
-        infoImg.setImageResource(R.drawable.cc3);
+        switch (schoolinfo.getSchoolTypeGroup()) {
+            case "小学" : infoImg.setImageResource(R.drawable.xiao2);
+                break;
+            case "幼儿园": infoImg.setImageResource(R.drawable.you);
+                break;
+            case "普通初中": infoImg.setImageResource(R.drawable.cc3);
+                break;
+            case "普通高中": infoImg.setImageResource(R.drawable.gao4);
+                break;
+            case "工读学校": infoImg.setImageResource(R.drawable.gong6);
+                break;
+            case "高级中学":
+                break;
+            case "完全中学" :
+                break;
+            case "初级中学" :
+                break;
+            case "职业高中学校":
+                break;
+            case "其他特教学校":
+                break;
+            case "中等职业学校": infoImg.setImageResource(R.drawable.zhong7);
+                break;
+            case "普通高等学校":
+                break;
+            case "成人高等学校":
+                break;
+            case "特殊教育学校":
+                break;
+            case "培养研究生的科研机构": infoImg.setImageResource(R.drawable.te5);
+            default:break;
+        }
         schoolInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                       /* try{
+                            String url =  new UrlData().searchSchoolData;
+                            String param = schoolinfo.getOrganizationName();
+                            Log.d("233",param);
+                            String data = new RequestWebServece().submitSchoolDetailByNo(url,param);
+                            mList = new ResponseDataHandle().handleAreaResult(data);
+                            if(mList == null){
+                                Toast.makeText(getActivity(),"未查询到结果",Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mydialog.dismiss();
+                                        addInfosOverlay(mList);
+                                    }});
+                                mBMap.onClickImageview(mList);
+                            }
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }*/
+                    }
+                }).start();
+
+
                 //这里click后转到网页
+                Intent schoolInfo = new Intent();
+                schoolInfo.setClass(getActivity(),Schoolinfo.class);
 
             }
         });
 
+        drivingRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchDrivingRoute(schoolinfo);
+    }});
+
         busRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchRoute(schoolinfo);
-
-    }});
+                searchBusRoute(schoolinfo);
+            }
+        });
     }
 
-
     //路线搜索
-    private void searchRoute(Schoolinfo schoolinfo){
+    private void searchDrivingRoute(Schoolinfo schoolinfo){
+        AtomicReference<DrivingRouteOverlay> mDringRouteOverlay = new AtomicReference<DrivingRouteOverlay>();
         mRoutePlanSearch = RoutePlanSearch.newInstance();
+
+
         if(mRouteLine != null){
             mRouteLine = null;
         }
-        if(mRouteOverlay != null){
-            mRouteOverlay.removeFromMap();
+        if(mDringRouteOverlay.get() != null){
+            mDringRouteOverlay.get().removeFromMap();
         }
+        mBaiduMap.clear();
+
         OnGetRoutePlanResultListener routelistener = new OnGetRoutePlanResultListener() {
             @Override
             public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
@@ -242,7 +361,7 @@ public class BMap extends Fragment {
             @Override
             public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
                 if(drivingRouteResult == null || drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR){
-                    ToastUtil.ToastShort("抱歉没找到结果");
+                    Toast.makeText(getActivity(),"未查询到结果",Toast.LENGTH_SHORT).show();
                 }
                 if(drivingRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_KEYWORD){
                     return;
@@ -266,6 +385,7 @@ public class BMap extends Fragment {
 
             }
         };
+
         mRoutePlanSearch.setOnGetRoutePlanResultListener(routelistener);
 
         LatLng stlatlng = new LatLng(lat,lon);
@@ -273,11 +393,77 @@ public class BMap extends Fragment {
 
         stNode = PlanNode.withLocation(stlatlng);
         enNode = PlanNode.withLocation(enlatlng);
-        mRoutePlanSearch.transitSearch((new TransitRoutePlanOption()).from(stNode).to(enNode).city("西安"));
+        mRoutePlanSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).to(enNode));
+    }
 
-        mRoutePlanSearch.destroy();
+    private void searchBusRoute(Schoolinfo schoolinfo){
+        AtomicReference<MassTransitRouteOverlay> mMassTransitRouteOverlay = new AtomicReference<MassTransitRouteOverlay>();
+        mRoutePlanSearch = RoutePlanSearch.newInstance();
+
+        if(mRouteLine != null){
+            mRouteLine = null;
+        }
+        if( mMassTransitRouteOverlay.get() != null){
+            mMassTransitRouteOverlay.get().removeFromMap();
+        }
+        mBaiduMap.clear();
+
+        OnGetRoutePlanResultListener routelistener = new OnGetRoutePlanResultListener() {
+            @Override
+            public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
+
+            }
+
+            @Override
+            public void onGetTransitRouteResult(TransitRouteResult transitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetMassTransitRouteResult(MassTransitRouteResult massTransitRouteResult) {
+
+                if(massTransitRouteResult == null || massTransitRouteResult.error != SearchResult.ERRORNO.NO_ERROR){
+                    Toast.makeText(getActivity(),"未查询到结果",Toast.LENGTH_SHORT).show();
+                }
+                if(massTransitRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_KEYWORD){
+                    return;
+                }
+                if(massTransitRouteResult.error == SearchResult.ERRORNO.NO_ERROR){
+                    mRouteLine = massTransitRouteResult.getRouteLines().get(0);
+                    MassTransitRouteOverlay overlay = new MassTransitRouteOverlay(mBaiduMap);
+                    overlay.setData(massTransitRouteResult.getRouteLines().get(0));
+                    overlay.addToMap();
+                    overlay.zoomToSpan();
+                }
+            }
+
+            @Override
+            public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
+
+            }
+
+            @Override
+            public void onGetIndoorRouteResult(IndoorRouteResult indoorRouteResult) {
+
+            }
+
+            @Override
+            public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+
+            }
+        };
+
+        mRoutePlanSearch.setOnGetRoutePlanResultListener(routelistener);
+
+        LatLng stlatlng = new LatLng(lat,lon);
+        LatLng enlatlng = new LatLng(schoolinfo.getY(),schoolinfo.getX());
+
+        stNode = PlanNode.withLocation(stlatlng);
+        enNode = PlanNode.withLocation(enlatlng);
+        mRoutePlanSearch.masstransitSearch(new MassTransitRoutePlanOption().from(stNode).to(enNode));
 
     }
+
     /**
      * 添加marker
      */
@@ -341,7 +527,7 @@ public class BMap extends Fragment {
      * 实现定位监听 位置一旦有所改变就会调用这个方法
      * 可以在这个方法里面获取到定位之后获取到的一系列数据
      */
-    public class MyLocationListener implements BDLocationListener {
+    private class MyLocationListener implements BDLocationListener {
 
 
         @Override
@@ -411,7 +597,7 @@ public class BMap extends Fragment {
             //这个判断是为了防止每次定位都重新设置中心点和marker
             if(isFirstLocation){
                 isFirstLocation = false;
-                setUserMapCenter();
+                //setUserMapCenter();
             }
             if(mMarker == null){
                 mMarker = setMarker(mMarker);
@@ -428,11 +614,13 @@ public class BMap extends Fragment {
         }
     }
 
-    //添加覆盖物
+    /**
+     * 添加覆盖物
+     * */
     public void addInfosOverlay(List<Schoolinfo> mapinfos){
         mBaiduMap.clear();
         LatLng latLng = null;
-        OverlayOptions overlayOptions = null;
+        MarkerOptions overlayOptions = null;
         Marker marker = null;
         for (Schoolinfo mapinfo: mapinfos){
             BitmapDescriptor bitmap = null;
@@ -440,6 +628,12 @@ public class BMap extends Fragment {
                 case "小学" : bitmap = BitmapDescriptorFactory.fromResource(R.drawable.xiao);
                     break;
                 case "幼儿园": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.v);
+                    break;
+                case "普通初中": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.zhong);
+                    break;
+                case "普通高中": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gao);
+                    break;
+                case "工读学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gong);
                     break;
                 case "高级中学": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gao);
                     break;
@@ -450,18 +644,44 @@ public class BMap extends Fragment {
                 case "职业高中学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gong);
                     break;
                 case "其他特教学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.te);
+                    break;
+                case "中等职业学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.zhong);
+                    break;
+                case "普通高等学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gao);
+                    break;
+                case "成人高等学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.gao);
+                    break;
+                case "特殊教育学校": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.te);
+                    break;
+                case "培养研究生的科研机构": bitmap = BitmapDescriptorFactory.fromResource(R.drawable.te);
+                default:break;
             }
 
             latLng = new LatLng(mapinfo.getY(), mapinfo.getX());
             overlayOptions = new MarkerOptions().position(latLng)
                     .icon(bitmap).zIndex(5);
+                // 生长动画
+                overlayOptions.animateType(MarkerOptions.MarkerAnimateType.grow);
+
             marker = (Marker)(mBaiduMap.addOverlay(overlayOptions));
 
             Bundle bundle = new Bundle();
             bundle.putSerializable("mapinfo", mapinfo);
             marker.setExtraInfo(bundle);
+
+            //定义地图状态
+            MapStatus mMapStatus = new MapStatus.Builder()
+                    .target(latLng)
+                    .zoom(13)
+                    .build();
+            //定义MapStatusUpdate对象，以便描述地图状态将要发生的变化
+            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+            //改变地图状态
+            mBaiduMap.setMapStatus(mMapStatusUpdate);
         }
     }
+
+
     /**
      * 必须要实现
      */
